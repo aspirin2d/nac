@@ -13,11 +13,13 @@ func TestBindUser(t *testing.T) {
 	w := httptest.NewRecorder()
 	c, _ := gin.CreateTestContext(w)
 
+	nac := &Nac{}
+
 	req := httptest.NewRequest("POST", "/u/add", strings.NewReader("{\"username\":\"aspirin2d\"}"))
 	req.Header.Set("Content-Type", "application/json")
 	c.Request = req
 
-	BindUser(c)
+	nac.BindUser(c)
 	assert.Zero(t, len(c.Errors))
 
 	w = httptest.NewRecorder()
@@ -26,16 +28,15 @@ func TestBindUser(t *testing.T) {
 	req.Header.Set("Content-Type", "application/json")
 	c.Request = req
 
-	BindUser(c)
+	nac.BindUser(c)
 	assert.Equal(t, c.Errors[0].Err.Error(), "username invalid")
 
 	w = httptest.NewRecorder()
-	c, r := gin.CreateTestContext(w)
-	nac := &Nac{}
+	_, r := gin.CreateTestContext(w)
 
 	// error handling middleware testing
 	r.Use(nac.ErrorHandler())
-	r.POST("/u/add", nac.AddUser)
+	r.POST("/u/add", nac.BindUser)
 
 	req = httptest.NewRequest("POST", "/u/add", strings.NewReader("{\"username\":\"aspirin2d\"")) // missing closing bracket
 	req.Header.Set("Content-Type", "application/json")

@@ -4,6 +4,7 @@ package nac
 import (
 	"context"
 	"errors"
+	"fmt"
 	"log"
 
 	"github.com/BurntSushi/toml"
@@ -113,21 +114,19 @@ func (n *Nac) ErrorHandler() gin.HandlerFunc {
 		c.Next()
 		// only check for the first error if there are any
 		if len(c.Errors) > 0 {
-			for _, err := range c.Errors {
-				switch err.Type {
-				case gin.ErrorTypePublic:
-					c.JSON(c.Writer.Status(), gin.H{"msg": err.Error()})
-				case gin.ErrorTypeBind:
-					c.JSON(c.Writer.Status(), gin.H{"msg": "binding error"})
-				case gin.ErrorTypeRender:
-					c.JSON(c.Writer.Status(), gin.H{"msg": "rendering error"})
-				default:
-					c.JSON(500, gin.H{"msg": "internal server error"})
-				}
-				if n.logger != nil {
-					n.logger.Error(err)
-				}
-				break
+			last := c.Errors.Last()
+			if last.IsType(gin.ErrorTypePrivate) {
+				c.JSON(500, gin.H{"msg": "internal server error"})
+			} else if last.IsType(gin.ErrorTypeBind) {
+				c.JSON(c.Writer.Status(), gin.H{"msg": fmt.Sprintf("binding error: %s", last.Error())})
+			} else if last.IsType(gin.ErrorTypeRender) {
+				c.JSON(c.Writer.Status(), gin.H{"msg": fmt.Sprintf("rendering error: %s", last.Error())})
+			} else {
+				c.JSON(c.Writer.Status(), gin.H{"msg": last.Error()})
+			}
+
+			if n.logger != nil {
+				n.logger.Error(c.Errors.JSON())
 			}
 		}
 	}

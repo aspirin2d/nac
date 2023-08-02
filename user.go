@@ -20,10 +20,12 @@ type User struct {
 }
 
 // AddUser will add an user to the database.
-func (n *Nac) AddUser(c *gin.Context) {
+// never mock testing
+func (n *Nac) InsertUser(c *gin.Context) {
 	usr, ok := c.MustGet("user").(*User)
 	if !ok {
 		c.AbortWithError(400, errors.New("user type casting error")).SetType(gin.ErrorTypePrivate)
+		return
 	}
 
 	ctx := c.Request.Context()
@@ -31,7 +33,7 @@ func (n *Nac) AddUser(c *gin.Context) {
 	if err != nil {
 		// if username already exists
 		if mongo.IsDuplicateKeyError(err) {
-			c.AbortWithError(400, errors.New("username already occupied")).SetType(gin.ErrorTypePublic)
+			c.AbortWithError(400, errors.New("user already exists"))
 		} else {
 			c.AbortWithError(500, err).SetType(gin.ErrorTypePrivate)
 		}
@@ -41,7 +43,9 @@ func (n *Nac) AddUser(c *gin.Context) {
 	c.JSON(200, gin.H{"id": res.InsertedID})
 }
 
-func BindUser(c *gin.Context) {
+// BindUser binds request body to User struct
+// and it creates new ObjectID and sets time.Now() to Created field
+func (n *Nac) BindUser(c *gin.Context) {
 	// username validation
 	var usr User
 	err := c.Bind(&usr)
@@ -50,7 +54,7 @@ func BindUser(c *gin.Context) {
 	}
 
 	if matched, err := usernameReg.MatchString(usr.Username); matched == false || err != nil {
-		c.AbortWithError(400, errors.New("username invalid")).SetType(gin.ErrorTypePublic)
+		c.AbortWithError(400, errors.New("username invalid"))
 		return
 	}
 
@@ -58,4 +62,20 @@ func BindUser(c *gin.Context) {
 	usr.Id = primitive.NewObjectID()
 
 	c.Set("user", usr)
+}
+
+func (n *Nac) GetUser(c *gin.Context) {
+	id, exists := c.Params.Get("uid")
+	if !exists {
+		c.AbortWithError(400, errors.New("user_id not found"))
+		return
+	}
+
+	uid, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		c.AbortWithError(400, errors.New("invalid user_id"))
+		return
+	}
+
+	c.Set("uid", uid)
 }
