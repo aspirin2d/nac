@@ -16,7 +16,8 @@ func TestBindUser(t *testing.T) {
 	req := httptest.NewRequest("POST", "/u/add", strings.NewReader("{\"username\":\"aspirin2d\"}"))
 	req.Header.Set("Content-Type", "application/json")
 	c.Request = req
-	usr := bindUser(c)
+
+	BindUser(c)
 	assert.Zero(t, len(c.Errors))
 
 	w = httptest.NewRecorder()
@@ -24,9 +25,8 @@ func TestBindUser(t *testing.T) {
 	req = httptest.NewRequest("POST", "/u/add", strings.NewReader("{\"username\":\"aspirin 2d\"}"))
 	req.Header.Set("Content-Type", "application/json")
 	c.Request = req
-	usr = bindUser(c)
 
-	assert.Nil(t, usr)
+	BindUser(c)
 	assert.Equal(t, c.Errors[0].Err.Error(), "username invalid")
 
 	w = httptest.NewRecorder()

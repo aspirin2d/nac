@@ -16,7 +16,7 @@ func TestPing(t *testing.T) {
 	n := FromConfig(".config.toml")
 
 	r.Use(n.ErrorHandler())
-	r.Handle("GET", "/ping", n.Ping)
+	r.GET("/ping", n.Ping)
 
 	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/ping", nil)

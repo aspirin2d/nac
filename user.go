@@ -21,10 +21,9 @@ type User struct {
 
 // AddUser will add an user to the database.
 func (n *Nac) AddUser(c *gin.Context) {
-	usr := bindUser(c)
-
-	if usr == nil {
-		return
+	usr, ok := c.MustGet("user").(*User)
+	if !ok {
+		c.AbortWithError(400, errors.New("user type casting error")).SetType(gin.ErrorTypePrivate)
 	}
 
 	ctx := c.Request.Context()
@@ -42,19 +41,21 @@ func (n *Nac) AddUser(c *gin.Context) {
 	c.JSON(200, gin.H{"id": res.InsertedID})
 }
 
-func bindUser(c *gin.Context) *User {
+func BindUser(c *gin.Context) {
 	// username validation
 	var usr User
 	err := c.Bind(&usr)
 	if err != nil {
-		return nil
+		return
 	}
 
 	if matched, err := usernameReg.MatchString(usr.Username); matched == false || err != nil {
 		c.AbortWithError(400, errors.New("username invalid")).SetType(gin.ErrorTypePublic)
-		return nil
+		return
 	}
 
 	usr.Created = time.Now()
-	return &usr
+	usr.Id = primitive.NewObjectID()
+
+	c.Set("user", usr)
 }
