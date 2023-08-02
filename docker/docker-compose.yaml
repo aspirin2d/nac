@@ -1,0 +1,15 @@
+services:
+  redis:
+    image: 'redis'
+    volumes:
+      - ./redis:/data
+    ports:
+      - '6379:6379'
+    restart: on-failure
+  mongo:
+    image: 'mongo'
+    volumes:
+      - ./mongo:/data/db
+    ports:
+      - '27017:27017'
+    restart: on-failure

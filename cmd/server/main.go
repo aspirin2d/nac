@@ -10,10 +10,13 @@ func main() {
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 
-	nac.Init(".config.toml")
+	// setup routes
+	n := nac.FromConfig(".config.toml")
+
+	r.Handle("GET", "/ping", n.Ping)
 
 	// run the server
-	err := r.Run()
+	err := r.Run(":8080")
 	if err != nil {
 		panic(err)
 	}

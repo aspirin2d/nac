@@ -1,0 +1,7 @@
+openai_api_key="sk-xxx"
+
+mongo_uri="mongodb://localhost:27017/"
+mongo_db_name="nac"
+
+redis_uri="redis://localhost:6379/" # do NOT use http scheme here
+redis_db=0
