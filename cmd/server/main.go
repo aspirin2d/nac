@@ -12,8 +12,11 @@ func main() {
 
 	// setup routes
 	n := nac.FromConfig(".config.toml")
+	r.Use(n.ErrorHandler())
 
 	r.Handle("GET", "/ping", n.Ping)
+	r.Handle("POST", "/u/add", n.BindUser, n.InsertUser)
+	r.Handle("POST", "/u/:uid", n.GetUserId, n.GetUserById)
 
 	// run the server
 	err := r.Run(":8080")

@@ -7,6 +7,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestBindUser(t *testing.T) {
@@ -44,4 +45,27 @@ func TestBindUser(t *testing.T) {
 
 	assert.Equal(t, 400, w.Code)
 	assert.Contains(t, w.Body.String(), "binding error")
+}
+
+func TestGetUserId(t *testing.T) {
+	w := httptest.NewRecorder()
+	_, r := gin.CreateTestContext(w)
+	nac := &Nac{}
+	// error handling middleware testing
+	r.Use(nac.ErrorHandler())
+	r.GET("/u/:uid", nac.GetUserId)
+
+	// user id invalid
+	w = httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/u/123", nil)
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, 400, w.Code)
+	assert.Contains(t, w.Body.String(), "invalid uid")
+
+	w = httptest.NewRecorder()
+	req = httptest.NewRequest("GET", "/u/"+primitive.NewObjectID().Hex(), nil)
+	r.ServeHTTP(w, req)
+
+	assert.Equal(t, 200, w.Code)
 }

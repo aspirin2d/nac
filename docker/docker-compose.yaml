@@ -1,15 +1,18 @@
 services:
   redis:
-    image: 'redis'
-    volumes:
-      - ./redis:/data
+    image: redis/redis-stack
+    container_name: redis
+    restart: always
     ports:
       - '6379:6379'
-    restart: on-failure
-  mongo:
-    image: 'mongo'
     volumes:
-      - ./mongo:/data/db
-    ports:
-      - '27017:27017'
-    restart: on-failure
+      - ./redis/:/data
+
+  mongo:
+      image: mongo
+      container_name: mongo
+      restart: always
+      ports:
+        - '27017:27017'
+      volumes:
+        - ./mongo:/data/db

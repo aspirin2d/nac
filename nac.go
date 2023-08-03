@@ -9,6 +9,7 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
+	"github.com/nitishm/go-rejson/v4"
 	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -31,6 +32,7 @@ type Config struct {
 type Nac struct {
 	mdb    *mongo.Database
 	rdb    *redis.Client
+	rejson *rejson.Handler
 	logger *zap.SugaredLogger
 }
 
@@ -135,4 +137,16 @@ func (n *Nac) ErrorHandler() gin.HandlerFunc {
 // ping endpoint for health checks
 func (n *Nac) Ping(c *gin.Context) {
 	c.String(200, "pong")
+}
+
+func (n *Nac) ClearData(ctx context.Context) {
+	err := n.mdb.Drop(ctx)
+	if err != nil {
+		panic(err)
+	}
+
+	err = n.rdb.FlushAll(ctx).Err()
+	if err != nil {
+		panic(err)
+	}
 }

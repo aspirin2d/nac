@@ -11,14 +11,14 @@ import (
 
 func TestPing(t *testing.T) {
 	gin.SetMode(gin.ReleaseMode)
-	r := gin.Default()
+	w := httptest.NewRecorder()
+	_, r := gin.CreateTestContext(w)
 	// setup routes
-	n := FromConfig(".config.toml")
+	n := &Nac{}
 
 	r.Use(n.ErrorHandler())
 	r.GET("/ping", n.Ping)
 
-	w := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/ping", nil)
 	r.ServeHTTP(w, req)
 
