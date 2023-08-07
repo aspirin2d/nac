@@ -20,9 +20,6 @@ type User struct {
 	Id       primitive.ObjectID `bson:"_id,omitempty" json:"id,omitempty"`
 	Username string             `bson:"username" json:"username"`
 	Created  time.Time          `bson:"created" json:"created"`
-
-	AddedTypes []int   `bson:"added_types" json:"added_types"`
-	Agents     []Agent `bson:"agents" json:"agents"`
 }
 
 // BindUser will add an user to the database.
@@ -61,8 +58,6 @@ func (n *Nac) BindUser(c *gin.Context) {
 
 	usr.Created = time.Now()
 	usr.Id = primitive.NewObjectID()
-	usr.Agents = []Agent{}
-	usr.AddedTypes = []int{}
 
 	c.Set("user", &usr)
 }

@@ -32,7 +32,7 @@ type Config struct {
 
 	MemoryLimit int `toml:"memory_limit"`
 
-	AgentTypes []AgentType `toml:"agent_types" bson:"agent_types"`
+	Agents []Agent `toml:"agents" bson:"agents"`
 }
 
 type Nac struct {
@@ -78,8 +78,8 @@ func FromConfig(path string) *Nac {
 
 	// save agent types to mongodb
 	var models []mongo.WriteModel
-	for _, at := range config.AgentTypes {
-		models = append(models, mongo.NewUpdateOneModel().SetFilter(bson.M{"_id": at.Id}).SetUpdate(bson.M{"$set": at}).SetUpsert(true))
+	for _, ag := range config.Agents {
+		models = append(models, mongo.NewUpdateOneModel().SetFilter(bson.M{"_id": ag.Id}).SetUpdate(bson.M{"$set": ag}).SetUpsert(true))
 	}
 
 	_, err = mdb.Collection(mdb_agent_types).BulkWrite(ctx, models)
