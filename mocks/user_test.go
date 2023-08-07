@@ -1,4 +1,4 @@
-package mocks
+package mock
 
 import (
 	"context"
@@ -18,7 +18,7 @@ func TestUser(t *testing.T) {
 	w := httptest.NewRecorder()
 	_, r := gin.CreateTestContext(w)
 	// setup routes
-	n := nac.FromConfig("../.config.toml")
+	n := nac.FromConfig("../example.config.toml")
 	defer func() {
 		n.ClearData(context.TODO())
 	}()
