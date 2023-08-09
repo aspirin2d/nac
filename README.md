@@ -1,2 +1,2 @@
 # Not Animal Crossing
-A library of simulating <Animal Crossing> with ChatGPT.
+A library of simulating <Animal Crossing> with LLM.
