@@ -21,7 +21,7 @@ func TestLoadAgentsConfig(t *testing.T) {
 func TestLoadTemplatesFromConfig(t *testing.T) {
 	config := MustLoadTemplates("testdata/templates.toml")
 	templates := config.Templates
-	assert.Equal(t, len(templates), 2)
 
+	assert.Equal(t, len(templates), 2)
 	assert.Equal(t, templates[0].Compiled.Name(), "template")
 }
