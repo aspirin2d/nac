@@ -9,8 +9,8 @@ import (
 
 	"github.com/BurntSushi/toml"
 	"github.com/gin-gonic/gin"
-	"github.com/nitishm/go-rejson/v4"
 	"github.com/redis/go-redis/v9"
+	"github.com/sleep2death/nac/template"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -32,13 +32,13 @@ type Config struct {
 
 	MemoryLimit int `toml:"memory_limit"`
 
-	AgentTypes []AgentType `toml:"agent_types" bson:"agent_types"`
+	Agents    []AgentDesc             `toml:"agents"`
+	Templates []template.TemplateDesc `toml:"templates"`
 }
 
 type Nac struct {
 	mdb    *mongo.Database
 	rdb    *redis.Client
-	rejson *rejson.Handler
 	logger *zap.SugaredLogger
 	config *Config
 }
@@ -71,28 +71,20 @@ func FromConfig(path string) *Nac {
 	mdb := mongoClient(ctx, config).Database(config.MongoDb)
 
 	// setup wx_id index and username for user collection, and make them unique
-	mdb.Collection(mdb_users).Indexes().CreateMany(ctx, []mongo.IndexModel{
+	_, err = mdb.Collection(mdb_users).Indexes().CreateMany(ctx, []mongo.IndexModel{
 		// {Keys: bson.M{"wx_id": 1}, Options: options.Index().SetUnique(true)},
 		{Keys: bson.M{"username": 1}, Options: options.Index().SetUnique(true)},
 	})
 
-	// save agent types to mongodb
-	var models []mongo.WriteModel
-	for _, at := range config.AgentTypes {
-		models = append(models, mongo.NewUpdateOneModel().SetFilter(bson.M{"_id": at.Id}).SetUpdate(bson.M{"$set": at}).SetUpsert(true))
-	}
-
-	_, err = mdb.Collection(mdb_agent_types).BulkWrite(ctx, models)
 	if err != nil {
 		panic(err)
 	}
-
 	// connect to redis
 	rdb := redisClient(ctx, config)
 
 	// init logger
 	logger, _ := zap.NewProduction()
-	defer logger.Sync() // flushes buffer, if any
+	defer logger.Sync() // nolint: errcheck
 	sugar := logger.Sugar()
 
 	return &Nac{logger: sugar, mdb: mdb, rdb: rdb, config: &config}
@@ -182,7 +174,7 @@ func (n *Nac) GetObjectId(name string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		oid, err := primitive.ObjectIDFromHex(c.Param(name))
 		if err != nil {
-			c.AbortWithError(400, fmt.Errorf("invalid object id: %v", oid)).SetType(gin.ErrorTypePublic)
+			c.AbortWithError(400, fmt.Errorf("invalid object id: %v", oid)).SetType(gin.ErrorTypePublic) //nolint:errcheck
 			return
 		}
 		c.Set(name, oid)

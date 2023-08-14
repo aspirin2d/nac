@@ -1,0 +1,15 @@
+[[templates]]
+id=1
+name="bootstrap"
+descripriton="""
+{{.Agent.Name}}第一次来到了{{.Meta.ShopName}}。
+"""
+content="""
+'{{.Meta.ShopName}}'是一家在坐落在森林里的茶馆。经营他的人名叫'{{.Meta.OwnerName}}'。森林里的小动物经常光顾这里。
+{{range .Agent.Descriptions}}{{.}}{{end}}
+这是{{.Agent.Name}}第一次来到茶馆。
+你的目标是根据上面的信息扮演{{.Agent.Name}}。以{{.Agent.Name}}特有的言谈举止给出对{{.Meta.ShopName}}的评价。
+输出内容中的动作及表情请用"()"注明，例如"(你的动作)"。
+注意不要有任何解释，只输出对茶馆的评价。
+你的评价是：
+"""

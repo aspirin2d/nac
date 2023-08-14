@@ -22,7 +22,7 @@ func TestAddAgent(t *testing.T) {
 	n := nac.FromConfig("../example.config.toml")
 	defer n.ClearData(context.Background())
 
-	assert.NotZero(t, len(n.Config().AgentTypes))
+	assert.NotZero(t, len(n.Config().Agents))
 	assert.NotNil(t, n.Config())
 
 	r.Use(n.ErrorHandler())
