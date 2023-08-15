@@ -33,6 +33,11 @@ type Agent struct {
 	Created   time.Time          `bson:"created" json:"created"`
 }
 
+// Step is the main function of an agent.
+// "/u/:uid/:aid/step"
+func (a *Agent) Step(ctx *gin.Context) {
+}
+
 // GET "/u/:uid/step"
 func (n *Nac) Step(c *gin.Context) {
 	ctx := c.Request.Context()

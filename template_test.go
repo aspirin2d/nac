@@ -1,9 +1,11 @@
 package nac
 
 import (
+	"net/http/httptest"
 	"testing"
 
 	"github.com/BurntSushi/toml"
+	"github.com/gin-gonic/gin"
 	"github.com/sleep2death/nac/template"
 	"github.com/stretchr/testify/assert"
 )
@@ -30,4 +32,9 @@ func TestLoadTemplate(t *testing.T) {
 	_, err = toml.DecodeFile("./config/agents.toml", &aConf)
 	assert.NoError(t, err)
 	assert.Equal(t, 3, len(aConf.Agents))
+
+	w := httptest.NewRecorder()
+	ctx, _ := gin.CreateTestContext(w)
+	ag := aConf.Agents[0].NewAgent()
+	ag.Step(ctx)
 }
