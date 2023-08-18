@@ -34,7 +34,7 @@ type Agent struct {
 }
 
 // Step is the main function of an agent.
-// "/u/:uid/:aid/step"
+// "/u/:uid/:aid/"
 func (a *Agent) Step(ctx *gin.Context) {
 }
 

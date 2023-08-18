@@ -36,7 +36,7 @@ func TestAddMemories(t *testing.T) {
 	assert.Equal(t, 200, w.Code)
 
 	var res map[string]string
-	json.Unmarshal(w.Body.Bytes(), &res)
+	json.Unmarshal(w.Body.Bytes(), &res) // nolint: errcheck
 	uid, err := primitive.ObjectIDFromHex(res["id"])
 	assert.NoError(t, err)
 
@@ -45,7 +45,7 @@ func TestAddMemories(t *testing.T) {
 	r.ServeHTTP(w, req)
 	assert.Equal(t, 200, w.Code)
 
-	json.Unmarshal(w.Body.Bytes(), &res)
+	json.Unmarshal(w.Body.Bytes(), &res) // nolint: errcheck
 	aid, err := primitive.ObjectIDFromHex(res["id"])
 	assert.NoError(t, err)
 
